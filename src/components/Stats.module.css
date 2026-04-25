@@ -1,0 +1,8 @@
+/* Stats.module.css */
+.wrap { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg-2); }
+.inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); }
+.item { padding: 28px 32px; border-right: 1px solid var(--border); }
+.item:last-child { border-right: none; }
+.value { font-family: var(--ff-m); font-size: 28px; font-weight: 700; color: var(--accent); }
+.label { font-family: var(--ff-m); font-size: 10px; color: var(--tx-3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+@media(max-width:640px) { .inner { grid-template-columns: repeat(2,1fr); } .item:nth-child(2) { border-right: none; } }

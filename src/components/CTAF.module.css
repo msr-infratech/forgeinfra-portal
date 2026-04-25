@@ -1,0 +1,18 @@
+/* CTA.module.css */
+.sec { text-align: center; padding: clamp(80px,10vh,120px) clamp(16px,4vw,48px); position: relative; overflow: hidden; }
+.glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 500px; height: 260px; background: radial-gradient(ellipse, var(--accent-glow), transparent 70%); pointer-events: none; }
+.title { font-size: clamp(32px,5vw,60px); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 16px; position: relative; }
+.sub { font-family: var(--ff-m); font-size: 13px; color: var(--tx-2); margin-bottom: 36px; position: relative; }
+.cmd { display: inline-block; background: var(--bg-card); border: 1px solid var(--border-h); border-radius: var(--r); padding: 14px 28px; font-family: var(--ff-m); font-size: 13px; color: var(--accent); cursor: pointer; transition: all 0.2s; margin-bottom: 36px; position: relative; }
+.cmd:hover { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+.hint { display: block; font-size: 9px; color: var(--tx-3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+.btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; position: relative; }
+.btns .btn { padding: 14px 36px; font-size: 12px; }
+
+/* Footer.module.css */
+.footer { border-top: 1px solid var(--border); background: var(--bg-2); padding: clamp(24px,4vh,40px) clamp(16px,4vw,48px); }
+.inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.copy { font-family: var(--ff-m); font-size: 10px; color: var(--tx-3); }
+.links { display: flex; gap: 20px; }
+.links a { font-family: var(--ff-m); font-size: 10px; color: var(--tx-3); text-decoration: none; transition: color 0.2s; }
+.links a:hover { color: var(--accent); }

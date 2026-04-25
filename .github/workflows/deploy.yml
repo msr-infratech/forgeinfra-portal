@@ -1,0 +1,51 @@
+name: Deploy forgeinfra-portal
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+
+            # Aller dans le dossier du projet
+            cd /opt/forgeinfra/portal
+
+            # Pull le code
+            git pull origin main
+
+            # Rebuild et restart le container
+            docker compose build portal
+            docker compose up -d --no-deps portal
+
+            # Nettoyer les images orphelines
+            docker image prune -f
+
+            echo "✓ Portal deployed at $(date)"

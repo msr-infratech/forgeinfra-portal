@@ -1,0 +1,26 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.card {
+  background: var(--bg-card);
+  padding: 32px;
+  transition: background 0.2s;
+}
+
+.card:hover { background: var(--bg-card-h); }
+
+.icon { font-size: 20px; display: block; margin-bottom: 16px; }
+
+.title { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+
+.desc { font-family: var(--ff-m); font-size: 11px; color: var(--tx-2); line-height: 1.9; }
+
+@media (max-width: 768px) { .grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }

@@ -1,0 +1,41 @@
+services:
+
+  # ── Portal React ──────────────────────────────
+  portal:
+    build:
+      context: /opt/forgeinfra/portal
+      dockerfile: Dockerfile
+    container_name: forgeinfra-portal
+    restart: unless-stopped
+    networks:
+      - forgeinfra
+
+  # ── Nginx reverse proxy + TLS ─────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: forgeinfra-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /opt/forgeinfra/nginx/conf.d:/etc/nginx/conf.d:ro
+      - /opt/forgeinfra/nginx/certbot/conf:/etc/letsencrypt:ro
+      - /opt/forgeinfra/nginx/certbot/www:/var/www/certbot:ro
+    depends_on:
+      - portal
+    networks:
+      - forgeinfra
+
+  # ── Certbot (Let's Encrypt TLS) ───────────────
+  certbot:
+    image: certbot/certbot
+    container_name: forgeinfra-certbot
+    volumes:
+      - /opt/forgeinfra/nginx/certbot/conf:/etc/letsencrypt
+      - /opt/forgeinfra/nginx/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+networks:
+  forgeinfra:
+    driver: bridge

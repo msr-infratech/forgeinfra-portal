@@ -1,0 +1,120 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 9, 15, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeUp 0.2s ease;
+}
+
+.box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-h);
+  border-radius: var(--r-lg);
+  padding: clamp(28px, 4vw, 44px);
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: var(--tx-3);
+  font-size: 16px;
+  cursor: pointer;
+  font-family: var(--ff-m);
+  transition: color 0.2s;
+  line-height: 1;
+  padding: 4px;
+}
+
+.close:hover { color: var(--accent); }
+
+.title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.sub {
+  font-family: var(--ff-m);
+  font-size: 11px;
+  color: var(--tx-2);
+  margin-bottom: 28px;
+  line-height: 1.7;
+}
+
+.field { margin-bottom: 16px; }
+
+.label {
+  display: block;
+  font-family: var(--ff-m);
+  font-size: 10px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  font-family: var(--ff-m);
+  font-size: 12px;
+  color: var(--tx);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.input::placeholder { color: var(--tx-3); }
+
+.divider {
+  text-align: center;
+  font-family: var(--ff-m);
+  font-size: 10px;
+  color: var(--tx-3);
+  margin: 16px 0;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 42%;
+  height: 1px;
+  background: var(--border);
+}
+
+.divider::before { left: 0; }
+.divider::after  { right: 0; }
+
+.note {
+  text-align: center;
+  font-family: var(--ff-m);
+  font-size: 11px;
+  color: var(--tx-2);
+}
+
+.link {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
