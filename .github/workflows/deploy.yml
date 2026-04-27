@@ -35,17 +35,21 @@ jobs:
           script: |
             set -e
 
-            # Aller dans le dossier du projet
-            cd /opt/forgeinfra/portal
+            # Clone si premier déploiement, sinon pull
+            if [ ! -d /opt/forgeinfra/portal ]; then
+              mkdir -p /opt/forgeinfra/portal
+              git clone https://github.com/msr-infratech/forgeinfra-portal /opt/forgeinfra/portal
+            fi
 
-            # Pull le code
+            cd /opt/forgeinfra/portal
             git pull origin main
 
-            # Rebuild et restart le container
+            # Créer le réseau Docker si absent
+            docker network inspect forgeinfra >/dev/null 2>&1 || docker network create forgeinfra
+
+            # Rebuild et restart
             docker compose build portal
             docker compose up -d --no-deps portal
-
-            # Nettoyer les images orphelines
             docker image prune -f
 
             echo "✓ Portal deployed at $(date)"
