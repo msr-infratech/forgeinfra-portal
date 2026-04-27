@@ -32,24 +32,23 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          envs: GH_TOKEN
           script: |
             set -e
 
-            # Clone si premier déploiement, sinon pull
             if [ ! -d /opt/forgeinfra/portal ]; then
               mkdir -p /opt/forgeinfra/portal
-              git clone https://github.com/msr-infratech/forgeinfra-portal /opt/forgeinfra/portal
+              git clone https://$GH_TOKEN@github.com/msr-infratech/forgeinfra-portal /opt/forgeinfra/portal
             fi
 
             cd /opt/forgeinfra/portal
-            git pull origin main
+            git pull https://$GH_TOKEN@github.com/msr-infratech/forgeinfra-portal main
 
-            # Créer le réseau Docker si absent
             docker network inspect forgeinfra >/dev/null 2>&1 || docker network create forgeinfra
-
-            # Rebuild et restart
             docker compose build portal
             docker compose up -d --no-deps portal
             docker image prune -f
 
             echo "✓ Portal deployed at $(date)"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
