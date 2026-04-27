@@ -1,303 +1,202 @@
-/* ── Layout ── */
-.dashboard {
-  min-height: 100vh;
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
+import { useState, useEffect } from 'react'
+import { useAuth } from '../hooks/useAuth'
+import { api } from '../services/api'
+import styles from './Dashboard.module.css'
+
+function StatCard({ label, value, accent }) {
+  return (
+    <div className={styles.statCard}>
+      <div className={styles.statValue} style={accent ? { color: 'var(--accent)' } : {}}>{value}</div>
+      <div className={styles.statLabel}>{label}</div>
+    </div>
+  )
 }
 
-/* ── Header ── */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 clamp(16px, 4vw, 48px);
-  height: 58px;
-  background: var(--bg-2);
-  border-bottom: 1px solid var(--border);
+function ClientRow({ client, token, onRevoke, onBootstrap }) {
+  return (
+    <div className={styles.row}>
+      <div className={styles.rowMain}>
+        <div className={styles.rowName}>{client.name}</div>
+        <div className={styles.rowMeta}>{client.email} · <span className={styles.plan}>{client.plan}</span></div>
+      </div>
+      <div className={styles.rowStatus}>
+        <span className={client.is_active ? styles.active : styles.inactive}>
+          {client.is_active ? 'Active' : 'Inactive'}
+        </span>
+      </div>
+      <div className={styles.rowActions}>
+        <button className="btn btn-ghost" onClick={() => onBootstrap(client.id)}>Bootstrap</button>
+        <button className="btn btn-ghost" style={{ color: '#ff5f57', borderColor: '#ff5f57' }}
+          onClick={() => onRevoke(client.id)}>Revoke</button>
+      </div>
+    </div>
+  )
 }
 
-.headerLogo { display: flex; align-items: center; gap: 10px; }
+function NewClientModal({ token, onClose, onCreated }) {
+  const [form, setForm] = useState({ name: '', email: '', plan: 'starter' })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-.hex {
-  width: 22px; height: 22px;
-  background: var(--accent);
-  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  const submit = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const client = await api.clients.create(token, form)
+      // Créer licence automatiquement
+      await api.licences.create(token, { client_id: client.id, plan: form.plan, duration_days: 365 })
+      onCreated(client)
+      onClose()
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className={styles.modalOverlay} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className={styles.modal}>
+        <div className={styles.modalTitle}>New client</div>
+        <div className={styles.field}>
+          <label className={styles.label}>Company name</label>
+          <input className={styles.input} value={form.name}
+            onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Acme Corp" />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label}>Email</label>
+          <input className={styles.input} type="email" value={form.email}
+            onChange={e => setForm({ ...form, email: e.target.value })} placeholder="cto@acme.com" />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label}>Plan</label>
+          <select className={styles.input} value={form.plan}
+            onChange={e => setForm({ ...form, plan: e.target.value })}>
+            <option value="starter">Starter — €490/yr · 10 nodes</option>
+            <option value="business">Business — €1,490/yr · 100 nodes</option>
+            <option value="enterprise">Enterprise — Custom</option>
+          </select>
+        </div>
+        {error && <div className={styles.error}>{error}</div>}
+        <button className="btn btn-solid" style={{ width: '100%', padding: 12 }}
+          onClick={submit} disabled={loading}>
+          {loading ? 'Creating...' : 'Create client + licence →'}
+        </button>
+      </div>
+    </div>
+  )
 }
 
-.brand {
-  font-family: var(--ff-m);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent);
-  letter-spacing: 0.04em;
+function BootstrapModal({ command, onClose }) {
+  const copy = () => navigator.clipboard.writeText(command)
+  return (
+    <div className={styles.modalOverlay} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className={styles.modal}>
+        <div className={styles.modalTitle}>Bootstrap command</div>
+        <p className={styles.modalSub}>Envoie cette commande au client — il la colle en root sur son serveur.</p>
+        <div className={styles.bootstrapCmd} onClick={copy}>
+          {command}
+          <span className={styles.copyHint}>click to copy</span>
+        </div>
+        <button className="btn btn-ghost" style={{ width: '100%' }} onClick={onClose}>Close</button>
+      </div>
+    </div>
+  )
 }
 
-.headerRight { display: flex; align-items: center; gap: 12px; }
+export default function Dashboard() {
+  const { user, token, logout } = useAuth()
+  const [clients, setClients] = useState([])
+  const [licences, setLicences] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [showNewClient, setShowNewClient] = useState(false)
+  const [bootstrapCmd, setBootstrapCmd] = useState('')
 
-.userEmail {
-  font-family: var(--ff-m);
-  font-size: 11px;
-  color: var(--tx-2);
-}
+  useEffect(() => {
+    Promise.all([
+      api.clients.list(token),
+      api.licences.list(token),
+    ]).then(([c, l]) => {
+      setClients(c)
+      setLicences(l)
+    }).finally(() => setLoading(false))
+  }, [token])
 
-/* ── Content ── */
-.content {
-  padding: clamp(24px, 4vw, 48px);
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
+  const handleBootstrap = async (clientId) => {
+    const data = await api.bootstrap.generate(token, clientId)
+    setBootstrapCmd(data.command)
+  }
 
-/* ── Page header ── */
-.pageHeader {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-  gap: 16px;
-}
+  const handleRevoke = async (clientId) => {
+    const licence = licences.find(l => l.client_id === clientId && l.is_active)
+    if (!licence) return alert('No active licence found')
+    if (!confirm('Revoke this licence?')) return
+    await api.licences.revoke(token, licence.id)
+    setLicences(prev => prev.map(l => l.id === licence.id ? { ...l, is_active: false } : l))
+  }
 
-.pageLabel {
-  font-family: var(--ff-m);
-  font-size: 10px;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  margin-bottom: 6px;
-}
+  const activeClients = clients.filter(c => c.is_active).length
+  const activeLicences = licences.filter(l => l.is_active).length
 
-.pageTitle {
-  font-size: clamp(24px, 3vw, 36px);
-  font-weight: 800;
-  letter-spacing: -0.025em;
-}
+  return (
+    <div className={styles.dashboard}>
+      {/* Header */}
+      <div className={styles.header}>
+        <div className={styles.headerLogo}>
+          <div className={styles.hex} />
+          <span className={styles.brand}>ForgeInfra</span>
+        </div>
+        <div className={styles.headerRight}>
+          <span className={styles.userEmail}>{user?.email}</span>
+          <button className="btn btn-ghost" onClick={logout}>Logout</button>
+        </div>
+      </div>
 
-/* ── Stats ── */
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  margin-bottom: 32px;
-}
+      <div className={styles.content}>
+        {/* Page title */}
+        <div className={styles.pageHeader}>
+          <div>
+            <div className={styles.pageLabel}>// dashboard</div>
+            <h1 className={styles.pageTitle}>Clients & Licences</h1>
+          </div>
+          <button className="btn btn-solid" onClick={() => setShowNewClient(true)}>
+            + New client
+          </button>
+        </div>
 
-@media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+        {/* Stats */}
+        <div className={styles.stats}>
+          <StatCard label="Total clients" value={clients.length} />
+          <StatCard label="Active clients" value={activeClients} accent />
+          <StatCard label="Active licences" value={activeLicences} accent />
+          <StatCard label="Revenue / yr" value={`€${activeLicences * 490}`} />
+        </div>
 
-.statCard {
-  background: var(--bg-card);
-  padding: 24px;
-  transition: background 0.2s;
-}
+        {/* Clients list */}
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>Clients</div>
+          {loading ? (
+            <div className={styles.empty}>Loading...</div>
+          ) : clients.length === 0 ? (
+            <div className={styles.empty}>No clients yet — create your first one.</div>
+          ) : (
+            <div className={styles.list}>
+              {clients.map(c => (
+                <ClientRow key={c.id} client={c} token={token}
+                  onBootstrap={handleBootstrap} onRevoke={handleRevoke} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
-.statCard:hover { background: var(--bg-card-h); }
-
-.statValue {
-  font-family: var(--ff-m);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
-}
-
-.statLabel {
-  font-family: var(--ff-m);
-  font-size: 10px;
-  color: var(--tx-3);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-/* ── Section ── */
-.section { margin-bottom: 32px; }
-
-.sectionTitle {
-  font-family: var(--ff-m);
-  font-size: 10px;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  margin-bottom: 16px;
-}
-
-.list {
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-}
-
-.empty {
-  font-family: var(--ff-m);
-  font-size: 12px;
-  color: var(--tx-3);
-  padding: 48px;
-  text-align: center;
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-}
-
-/* ── Row ── */
-.row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 24px;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border);
-  transition: background 0.2s;
-  flex-wrap: wrap;
-}
-
-.row:last-child { border-bottom: none; }
-.row:hover { background: var(--bg-card-h); }
-
-.rowMain { flex: 1; min-width: 0; }
-
-.rowName {
-  font-weight: 700;
-  font-size: 14px;
-  margin-bottom: 2px;
-}
-
-.rowMeta {
-  font-family: var(--ff-m);
-  font-size: 11px;
-  color: var(--tx-2);
-}
-
-.plan {
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.active {
-  font-family: var(--ff-m);
-  font-size: 10px;
-  color: var(--accent);
-  background: var(--accent-dim);
-  padding: 3px 8px;
-  border-radius: 2px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.inactive {
-  font-family: var(--ff-m);
-  font-size: 10px;
-  color: var(--tx-3);
-  background: var(--border);
-  padding: 3px 8px;
-  border-radius: 2px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.rowActions { display: flex; gap: 8px; }
-
-/* ── Modal ── */
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(7,9,15,0.85);
-  backdrop-filter: blur(10px);
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  animation: fadeUp 0.2s ease;
-}
-
-.modal {
-  background: var(--bg-card);
-  border: 1px solid var(--border-h);
-  border-radius: var(--r-lg);
-  padding: clamp(28px, 4vw, 44px);
-  width: 100%;
-  max-width: 420px;
-}
-
-.modalTitle {
-  font-size: 20px;
-  font-weight: 800;
-  margin-bottom: 6px;
-}
-
-.modalSub {
-  font-family: var(--ff-m);
-  font-size: 11px;
-  color: var(--tx-2);
-  margin-bottom: 24px;
-  line-height: 1.7;
-}
-
-.field { margin-bottom: 16px; }
-
-.label {
-  display: block;
-  font-family: var(--ff-m);
-  font-size: 10px;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 6px;
-}
-
-.input {
-  width: 100%;
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 10px 14px;
-  font-family: var(--ff-m);
-  font-size: 12px;
-  color: var(--tx);
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-dim);
-}
-
-.error {
-  font-family: var(--ff-m);
-  font-size: 11px;
-  color: #ff5f57;
-  margin-bottom: 12px;
-}
-
-.bootstrapCmd {
-  background: var(--bg-2);
-  border: 1px solid var(--border-h);
-  border-radius: var(--r);
-  padding: 16px;
-  font-family: var(--ff-m);
-  font-size: 11px;
-  color: var(--accent);
-  cursor: pointer;
-  margin-bottom: 16px;
-  word-break: break-all;
-  line-height: 1.8;
-  transition: all 0.2s;
-}
-
-.bootstrapCmd:hover { border-color: var(--accent); }
-
-.copyHint {
-  display: block;
-  font-size: 9px;
-  color: var(--tx-3);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-top: 8px;
+      {showNewClient && (
+        <NewClientModal token={token} onClose={() => setShowNewClient(false)}
+          onCreated={c => setClients(prev => [...prev, c])} />
+      )}
+      {bootstrapCmd && (
+        <BootstrapModal command={bootstrapCmd} onClose={() => setBootstrapCmd('')} />
+      )}
+    </div>
+  )
 }
