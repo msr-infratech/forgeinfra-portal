@@ -45,6 +45,11 @@ jobs:
             git pull https://$GH_TOKEN@github.com/msr-infratech/forgeinfra-portal main
 
             docker network inspect forgeinfra >/dev/null 2>&1 || docker network create forgeinfra
+
+            # Supprimer le container existant peu importe comment il a été créé
+            docker stop forgeinfra-portal 2>/dev/null || true
+            docker rm forgeinfra-portal 2>/dev/null || true
+
             docker compose build portal
             docker compose up -d --no-deps portal
             docker image prune -f
