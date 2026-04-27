@@ -1,14 +1,14 @@
 import './index.css'
 import { ModalProvider } from './hooks/useModal'
+import { AuthProvider, useAuth } from './hooks/useAuth'
 import { useTheme } from './hooks/useTheme'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
 import Modal from './components/Modal'
+import Dashboard from './components/Dashboard'
 import { BRAND, STATS, FEATURES, STEPS, PLANS } from './config'
 import { useModal } from './hooks/useModal'
 import { useEffect, useRef } from 'react'
-
-// ── Inline section components (simple enough to not need separate files) ──
 
 function Stats() {
   return (
@@ -34,20 +34,16 @@ function Features() {
     ref.current.forEach(el => el && obs.observe(el))
     return () => obs.disconnect()
   }, [])
-
   return (
     <section className="section" id="features">
       <div className="sec-label">// capabilities</div>
       <h2 className="sec-title">Everything you need to sell infrastructure automation.</h2>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:1, background:'var(--border)', border:'1px solid var(--border)', borderRadius:'var(--r-lg)', overflow:'hidden' }}>
         {FEATURES.map((f,i) => (
-          <div
-            key={i}
-            ref={el => ref.current[i] = el}
+          <div key={i} ref={el => ref.current[i] = el}
             style={{ background:'var(--bg-card)', padding:32, opacity:0, transform:'translateY(18px)', transition:'opacity 0.4s ease, transform 0.4s ease, background 0.2s' }}
             onMouseEnter={e => e.currentTarget.style.background='var(--bg-card-h)'}
-            onMouseLeave={e => e.currentTarget.style.background='var(--bg-card)'}
-          >
+            onMouseLeave={e => e.currentTarget.style.background='var(--bg-card)'}>
             <span style={{ fontSize:20, display:'block', marginBottom:16 }}>{f.icon}</span>
             <div style={{ fontWeight:700, fontSize:15, marginBottom:8 }}>{f.title}</div>
             <div style={{ fontFamily:'var(--ff-m)', fontSize:11, color:'var(--tx-2)', lineHeight:1.9 }}>{f.desc}</div>
@@ -86,34 +82,15 @@ function Pricing() {
       <h2 className="sec-title">Transparent, licence-based pricing.</h2>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
         {PLANS.map((p,i) => (
-          <div key={i} style={{
-            background:'var(--bg-card)', borderRadius:'var(--r-lg)', padding:36,
-            position:'relative', overflow:'hidden',
-            border: p.hot ? '1px solid var(--accent)' : '1px solid var(--border)',
-            transition:'border-color 0.2s'
-          }}>
-            {p.hot && (
-              <div style={{ position:'absolute', top:14, right:-20, background:'var(--accent)', color:'#07090f', fontFamily:'var(--ff-m)', fontSize:8, fontWeight:700, letterSpacing:'0.1em', padding:'3px 28px', transform:'rotate(45deg)' }}>
-                POPULAR
-              </div>
-            )}
+          <div key={i} style={{ background:'var(--bg-card)', borderRadius:'var(--r-lg)', padding:36, position:'relative', overflow:'hidden', border: p.hot ? '1px solid var(--accent)' : '1px solid var(--border)' }}>
+            {p.hot && <div style={{ position:'absolute', top:14, right:-20, background:'var(--accent)', color:'#07090f', fontFamily:'var(--ff-m)', fontSize:8, fontWeight:700, letterSpacing:'0.1em', padding:'3px 28px', transform:'rotate(45deg)' }}>POPULAR</div>}
             <div style={{ fontFamily:'var(--ff-m)', fontSize:10, color:'var(--accent)', textTransform:'uppercase', letterSpacing:'0.15em', marginBottom:12 }}>{p.tier}</div>
             <div style={{ fontFamily:'var(--ff-d)', fontSize:44, fontWeight:800, letterSpacing:'-0.03em', lineHeight:1 }}>{p.price}</div>
             <div style={{ fontFamily:'var(--ff-m)', fontSize:11, color:'var(--tx-2)', marginBottom:28 }}>{p.period}</div>
             <ul style={{ listStyle:'none', marginBottom:28 }}>
-              {p.features.map((f,j) => (
-                <li key={j} style={{ fontFamily:'var(--ff-m)', fontSize:11, color:'var(--tx-2)', padding:'7px 0', borderBottom:'1px solid var(--border)', display:'flex', gap:8 }}>
-                  <span style={{ color:'var(--accent)', flexShrink:0 }}>→</span>{f}
-                </li>
-              ))}
+              {p.features.map((f,j) => <li key={j} style={{ fontFamily:'var(--ff-m)', fontSize:11, color:'var(--tx-2)', padding:'7px 0', borderBottom:'1px solid var(--border)', display:'flex', gap:8 }}><span style={{ color:'var(--accent)' }}>→</span>{f}</li>)}
             </ul>
-            <button
-              className={`btn btn-${p.ctaStyle}`}
-              style={{ width:'100%', padding:11 }}
-              onClick={() => open(i === 2 ? 'contact' : 'signup')}
-            >
-              {p.cta}
-            </button>
+            <button className={`btn btn-${p.ctaStyle}`} style={{ width:'100%', padding:11 }} onClick={() => open(i === 2 ? 'contact' : 'signup')}>{p.cta}</button>
           </div>
         ))}
       </div>
@@ -134,28 +111,15 @@ function CTA() {
   return (
     <section style={{ textAlign:'center', padding:'clamp(80px,10vh,120px) clamp(16px,4vw,48px)', position:'relative', overflow:'hidden' }}>
       <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:500, height:260, background:'radial-gradient(ellipse, var(--accent-glow), transparent 70%)', pointerEvents:'none' }} />
-      <h2 style={{ fontSize:'clamp(32px,5vw,60px)', fontWeight:800, letterSpacing:'-0.03em', marginBottom:16, position:'relative' }}>
-        Provision your first client today.
-      </h2>
-      <p style={{ fontFamily:'var(--ff-m)', fontSize:13, color:'var(--tx-2)', marginBottom:36, position:'relative' }}>
-        No infrastructure to expose. No ports to open. Just one command.
-      </p>
-      <div
-        onClick={copy}
-        style={{ display:'inline-block', background:'var(--bg-card)', border:'1px solid var(--border-h)', borderRadius:'var(--r)', padding:'14px 28px', fontFamily:'var(--ff-m)', fontSize:13, color:'var(--accent)', cursor:'pointer', marginBottom:36, position:'relative', transition:'all 0.2s' }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor='var(--accent)'; e.currentTarget.style.boxShadow='0 0 20px var(--accent-glow)' }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border-h)'; e.currentTarget.style.boxShadow='none' }}
-      >
+      <h2 style={{ fontSize:'clamp(32px,5vw,60px)', fontWeight:800, letterSpacing:'-0.03em', marginBottom:16, position:'relative' }}>Provision your first client today.</h2>
+      <p style={{ fontFamily:'var(--ff-m)', fontSize:13, color:'var(--tx-2)', marginBottom:36, position:'relative' }}>No infrastructure to expose. No ports to open. Just one command.</p>
+      <div onClick={copy} style={{ display:'inline-block', background:'var(--bg-card)', border:'1px solid var(--border-h)', borderRadius:'var(--r)', padding:'14px 28px', fontFamily:'var(--ff-m)', fontSize:13, color:'var(--accent)', cursor:'pointer', marginBottom:36, position:'relative' }}>
         curl -fsSL https://{BRAND.domain}/bootstrap/demo | bash
         <span style={{ display:'block', fontSize:9, color:'var(--tx-3)', textTransform:'uppercase', letterSpacing:'0.1em', marginTop:4 }}>click to copy</span>
       </div>
       <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap', position:'relative' }}>
-        <button className="btn btn-solid" style={{ padding:'14px 36px', fontSize:12 }} onClick={() => open('signup')}>
-          Start free 14-day trial
-        </button>
-        <a href="#docs" className="btn btn-ghost" style={{ padding:'14px 36px', fontSize:12 }}>
-          Read the docs →
-        </a>
+        <button className="btn btn-solid" style={{ padding:'14px 36px', fontSize:12 }} onClick={() => open('signup')}>Start free 14-day trial</button>
+        <a href="#docs" className="btn btn-ghost" style={{ padding:'14px 36px', fontSize:12 }}>Read the docs →</a>
       </div>
     </section>
   )
@@ -165,15 +129,12 @@ function Footer() {
   return (
     <footer style={{ borderTop:'1px solid var(--border)', background:'var(--bg-2)', padding:'clamp(24px,4vh,40px) clamp(16px,4vw,48px)' }}>
       <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:16 }}>
-        <div style={{ fontFamily:'var(--ff-m)', fontSize:10, color:'var(--tx-3)' }}>
-          © 2025 {BRAND.name}. Infrastructure automation platform.
-        </div>
+        <div style={{ fontFamily:'var(--ff-m)', fontSize:10, color:'var(--tx-3)' }}>© 2025 {BRAND.name}. Infrastructure automation platform.</div>
         <div style={{ display:'flex', gap:20 }}>
           {['Docs','Status','Privacy','Terms','Contact'].map(l => (
-            <a key={l} href="#" style={{ fontFamily:'var(--ff-m)', fontSize:10, color:'var(--tx-3)', textDecoration:'none', transition:'color 0.2s' }}
+            <a key={l} href="#" style={{ fontFamily:'var(--ff-m)', fontSize:10, color:'var(--tx-3)', textDecoration:'none' }}
               onMouseEnter={e => e.target.style.color='var(--accent)'}
-              onMouseLeave={e => e.target.style.color='var(--tx-3)'}
-            >{l}</a>
+              onMouseLeave={e => e.target.style.color='var(--tx-3)'}>{l}</a>
           ))}
         </div>
       </div>
@@ -181,9 +142,8 @@ function Footer() {
   )
 }
 
-// ── Root App ──
-function AppInner() {
-  useTheme() // initialise theme on mount
+function LandingPage() {
+  useTheme()
   return (
     <>
       <Nav />
@@ -199,10 +159,29 @@ function AppInner() {
   )
 }
 
-export default function App() {
+function AppInner() {
+  const { user, loading } = useAuth()
+  useTheme()
+
+  if (loading) return (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', fontFamily:'var(--ff-m)', fontSize:12, color:'var(--tx-3)' }}>
+      Loading...
+    </div>
+  )
+
+  if (user) return <Dashboard />
+
   return (
     <ModalProvider>
-      <AppInner />
+      <LandingPage />
     </ModalProvider>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   )
 }

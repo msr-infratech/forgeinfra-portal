@@ -9,6 +9,7 @@ export const BRAND = {
   domain:      'forgeinfra.com',
   email:       'hello@forgeinfra.com',
   github:      'https://github.com/msr-infratech',
+  apiUrl:      'http://77.37.120.51:8000',
   accent:      '#00e87a',
   accentDim:   'rgba(0,232,122,0.12)',
   accentGlow:  'rgba(0,232,122,0.22)',
