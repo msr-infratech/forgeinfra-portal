@@ -6,6 +6,7 @@ import Nav from './components/Nav'
 import Hero from './components/Hero'
 import Modal from './components/Modal'
 import Dashboard from './components/Dashboard'
+import ClientPortal from './components/ClientPortal'
 import { BRAND, STATS, FEATURES, STEPS, PLANS } from './config'
 import { useModal } from './hooks/useModal'
 import { useEffect, useRef } from 'react'
@@ -258,6 +259,9 @@ function AppInner() {
     </div>
   )
 
+  // Client final → vue portail limitée
+  if (user?.client_id) return <ClientPortal />
+  // Admin / MSP → dashboard complet
   if (user) return <Dashboard />
 
   return (

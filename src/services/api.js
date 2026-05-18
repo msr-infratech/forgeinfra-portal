@@ -53,6 +53,11 @@ export const api = {
       request('POST', `/api/bootstrap/generate/${clientId}`, {}, token),
   },
 
+  // ── Client portal ─────────────────────────────────────────────────────────
+  client: {
+    dashboard: (token) => request('GET', '/api/client/dashboard', null, token),
+  },
+
   // ── Admin ─────────────────────────────────────────────────────────────────
   admin: {
     listUsers:    (token)           => request('GET',    '/api/admin/users',        null,    token),
