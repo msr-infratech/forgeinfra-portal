@@ -1,10 +1,10 @@
 .hero {
-  padding: clamp(60px, 10vh, 120px) clamp(16px, 4vw, 48px) clamp(60px, 8vh, 100px);
+  padding: clamp(72px, 10vh, 120px) clamp(20px, 5vw, 60px) clamp(72px, 8vh, 100px);
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  gap: 64px;
   align-items: center;
 }
 
@@ -13,24 +13,24 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border: 1px solid var(--border-h);
-  border-radius: 2px;
+  border-radius: 20px;
   margin-bottom: 28px;
   width: fit-content;
+  background: var(--accent-dim);
 }
 
 .badge span:last-child {
-  font-family: var(--ff-m);
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--accent);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--accent);
   animation: pulse 2s infinite;
@@ -39,23 +39,23 @@
 
 /* TITLE */
 .title {
-  font-size: clamp(38px, 5.5vw, 72px);
+  font-size: clamp(36px, 5vw, 64px);
   font-weight: 800;
-  line-height: 1.0;
+  line-height: 1.05;
   letter-spacing: -0.03em;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .accent { color: var(--accent); }
 
-/* SUB */
+/* SUBTITLE */
 .sub {
-  font-family: var(--ff-m);
-  font-size: 13px;
+  font-size: 17px;
   color: var(--tx-2);
-  line-height: 1.85;
+  line-height: 1.75;
   margin-bottom: 36px;
-  max-width: 440px;
+  max-width: 480px;
+  font-weight: 400;
 }
 
 /* ACTIONS */
@@ -63,11 +63,28 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  margin-bottom: 24px;
 }
 
-.actions .btn {
-  padding: 12px 28px;
-  font-size: 12px;
+/* TRUST INDICATORS */
+.trust {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.trustItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--tx-3);
+  font-weight: 500;
+}
+
+.trustItem svg {
+  color: var(--accent);
+  flex-shrink: 0;
 }
 
 /* RIGHT */
@@ -80,13 +97,13 @@
 @media (max-width: 900px) {
   .hero {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 48px;
   }
-
   .right { display: none; }
 }
 
 @media (max-width: 480px) {
   .actions { flex-direction: column; }
   .actions .btn { width: 100%; }
+  .trust { gap: 12px; }
 }

@@ -5,16 +5,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 clamp(16px, 4vw, 48px);
-  height: 58px;
-  background: var(--bg-2);
+  padding: 0 clamp(20px, 5vw, 60px);
+  height: 62px;
+  background: rgba(8, 12, 20, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   transition: var(--transition), box-shadow 0.25s;
 }
 
+[data-theme='light'] .nav {
+  background: rgba(255, 255, 255, 0.92);
+}
+
 .nav.scrolled {
-  box-shadow: 0 2px 20px rgba(0,0,0,0.25);
-  border-bottom-color: var(--border-h);
+  box-shadow: 0 1px 24px rgba(0,0,0,0.3);
+  border-bottom-color: rgba(0,232,122,0.12);
 }
 
 /* LOGO */
@@ -24,11 +30,12 @@
   gap: 10px;
   cursor: pointer;
   flex-shrink: 0;
+  user-select: none;
 }
 
 .logoHex {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   background: var(--accent);
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
   flex-shrink: 0;
@@ -36,7 +43,7 @@
 
 .logoName {
   font-family: var(--ff-m);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--accent);
   letter-spacing: 0.04em;
@@ -45,32 +52,35 @@
 /* LINKS */
 .links {
   display: flex;
-  gap: 28px;
+  gap: 4px;
   list-style: none;
 }
 
 .links a {
-  font-family: var(--ff-m);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--tx-2);
   transition: color 0.2s;
   cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--r);
 }
 
-.links a:hover { color: var(--accent); }
+.links a:hover {
+  color: var(--tx);
+  background: var(--bg-card);
+}
 
 /* RIGHT */
 .right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .themeBtn {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--r);
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -115,20 +125,18 @@
   .links {
     display: none;
     position: absolute;
-    top: 58px;
+    top: 62px;
     left: 0;
     right: 0;
     flex-direction: column;
     background: var(--bg-2);
     border-bottom: 1px solid var(--border);
-    padding: 16px 24px 24px;
-    gap: 16px;
+    padding: 12px 16px 20px;
+    gap: 4px;
   }
 
   .links.open { display: flex; }
-
   .burger { display: flex; }
-
   .right .btn { display: none; }
   .right .themeBtn { display: flex; }
 }
