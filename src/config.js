@@ -10,9 +10,9 @@ export const BRAND = {
   email:       'hello@forgeinfra.com',
   github:      'https://github.com/msr-infratech',
   apiUrl:      'http://77.37.120.51:8000',
-  accent:      '#00e87a',
-  accentDim:   'rgba(0,232,122,0.12)',
-  accentGlow:  'rgba(0,232,122,0.22)',
+  accent:      '#06B6D4',
+  accentDim:   'rgba(6,182,212,0.12)',
+  accentGlow:  'rgba(6,182,212,0.22)',
 }
 
 export const NAV_LINKS = [
