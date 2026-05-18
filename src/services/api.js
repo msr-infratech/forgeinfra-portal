@@ -53,6 +53,15 @@ export const api = {
       request('POST', `/api/bootstrap/generate/${clientId}`, {}, token),
   },
 
+  // ── Admin ─────────────────────────────────────────────────────────────────
+  admin: {
+    listUsers:    (token)           => request('GET',    '/api/admin/users',        null,    token),
+    createUser:   (token, data)     => request('POST',   '/api/admin/users',        data,    token),
+    updateUser:   (token, id, data) => request('PATCH',  `/api/admin/users/${id}`,  data,    token),
+    deleteUser:   (token, id)       => request('DELETE', `/api/admin/users/${id}`,  null,    token),
+    updateProfile:(token, data)     => request('PATCH',  '/api/auth/me',            data,    token),
+  },
+
   // ── Jobs ──────────────────────────────────────────────────────────────────
   jobs: {
     list: (token) =>

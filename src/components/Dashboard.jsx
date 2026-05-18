@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { api } from '../services/api'
 import styles from './Dashboard.module.css'
+import Settings from './Settings'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -292,8 +293,13 @@ export default function Dashboard() {
   const [jobs,     setJobs]     = useState([])
   const [loading,  setLoading]  = useState(true)
   const [showNewClient,  setShowNewClient]  = useState(false)
-  const [bootstrapData,  setBootstrapData]  = useState(null)   // { command, clientId, clientEmail }
-  const [expandedJob, setExpandedJob] = useState(null)
+  const [bootstrapData,  setBootstrapData]  = useState(null)
+  const [expandedJob,    setExpandedJob]    = useState(null)
+  const [showSettings,   setShowSettings]   = useState(false)
+
+  if (showSettings) {
+    return <Settings onBack={() => setShowSettings(false)} />
+  }
 
   // ── Data fetching ─────────────────────────────────────────────────────────
 
@@ -390,6 +396,7 @@ export default function Dashboard() {
         </div>
         <div className={styles.headerRight}>
           <span className={styles.userEmail}>{user?.email}</span>
+          <button className="btn btn-ghost" style={{ fontSize: 13 }} onClick={() => setShowSettings(true)}>Settings</button>
           <button className="btn btn-ghost" style={{ fontSize: 13 }} onClick={logout}>Logout</button>
         </div>
       </div>
